@@ -159,6 +159,14 @@ def verificar_credenciales(credentials: HTTPBasicCredentials = Depends(security)
         )
     return credentials.username # Retorna el nombre de usuario si es correcto
 
+@app.get("/status", tags=["Salud"])
+def get_status():
+    """
+    Endpoint de chequeo de salud (Health Check)
+    Devuelve un simple OK sin requerir autenticación.
+    """
+    return {"status": "OK"}
+    
 @app.get("/test.html", response_class=HTMLResponse, tags=["Test"])
 def servir_test_html(username: str = Depends(verificar_credenciales)):
     """
