@@ -166,7 +166,7 @@ def get_status():
     Devuelve un simple OK sin requerir autenticación.
     """
     return {"status": "OK"}
-    
+
 @app.get("/test.html", response_class=HTMLResponse, tags=["Test"])
 def servir_test_html(username: str = Depends(verificar_credenciales)):
     """
@@ -174,7 +174,7 @@ def servir_test_html(username: str = Depends(verificar_credenciales)):
     """
     try:
         # Asume que test.html está en la misma carpeta
-        with open("./html/test.html", "r", encoding="utf-8") as f:
+        with open("html/test.html", "r", encoding="utf-8") as f:
             html_content = f.read()
         return html_content
     except FileNotFoundError:
