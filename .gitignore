@@ -1,0 +1,12 @@
+*.csv
+/cluster/*.csv
+/lemma/*.csv
+/themes/*.csv
+/conocimiento_consolidado/*.md
+/imgs/cluster/*.png
+/imgs/codo/*.png
+/incidencias/*
+/knowledge_base_db/*
+__pycache__
+
+*.ini

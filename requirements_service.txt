@@ -1,0 +1,10 @@
+chromadb
+google-generativeai
+python-dotenv
+fastapi
+pydantic
+beautifulsoup4
+lxml
+uvicorn[standard]
+pandas
+matplotlib

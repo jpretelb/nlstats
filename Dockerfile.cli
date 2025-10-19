@@ -1,0 +1,93 @@
+
+FROM python:3.9.0-alpine3.12
+
+RUN apk add --no-cache \
+        ca-certificates \
+        openssl \
+        ppp \
+        curl \
+        su-exec \
+        socat
+
+RUN apk add --no-cache \
+        python3 python3-dev \
+        g++ \
+        unixodbc-dev \
+        curl \
+        build-base \
+        linux-headers
+# --- FIN DE PARTE CLAVE MODIFICADA ---
+
+RUN apk add python3 python3-dev g++ unixodbc-dev curl
+RUN python -m ensurepip
+RUN pip install --user pyodbc
+RUN pip install spacy
+
+WORKDIR /app
+
+
+RUN python -m pip install -U pip
+
+RUN python -m pip install spacy==3.7.4
+RUN python -m pip install nltk==3.7
+RUN python -m pip install spacy_spanish_lemmatizer==0.7
+
+RUN python -m nltk.downloader all
+
+RUN pip install -U pip setuptools wheel
+RUN pip install -U spacy
+
+RUN python -m spacy download es_core_news_lg
+
+
+#COPY requirements.txt requirements.txt
+
+#RUN pip install -r requirements.txt 
+
+
+#RUN python -m spacy_spanish_lemmatizer download wiki
+
+
+#Download the desired package(s)
+RUN curl -O https://download.microsoft.com/download/3/5/5/355d7943-a338-41a7-858d-53b259ea33f5/msodbcsql18_18.3.3.1-1_amd64.apk
+RUN curl -O https://download.microsoft.com/download/3/5/5/355d7943-a338-41a7-858d-53b259ea33f5/mssql-tools18_18.3.1.1-1_amd64.apk
+
+#(Optional) Verify signature, if 'gpg' is missing install it using 'apk add gnupg':
+RUN curl -O https://download.microsoft.com/download/3/5/5/355d7943-a338-41a7-858d-53b259ea33f5/msodbcsql18_18.3.3.1-1_amd64.sig
+RUN curl -O https://download.microsoft.com/download/3/5/5/355d7943-a338-41a7-858d-53b259ea33f5/mssql-tools18_18.3.1.1-1_amd64.sig
+
+#RUN curl https://packages.microsoft.com/keys/microsoft.asc  | gpg --import -
+#RUN gpg --verify msodbcsql18_18.3.3.1-1_amd64.sig msodbcsql18_18.3.3.1-1_amd64.apk
+#RUN gpg --verify mssql-tools18_18.3.1.1-1_amd64.sig mssql-tools18_18.3.1.1-1_amd64.apk
+
+RUN pip install pyfiglet
+
+#Install the package(s)
+RUN apk add --allow-untrusted msodbcsql18_18.3.3.1-1_amd64.apk
+RUN apk add --allow-untrusted mssql-tools18_18.3.1.1-1_amd64.apk
+
+RUN apk add --no-cache \
+        python3 python3-dev \
+        g++ \
+        unixodbc-dev \
+        curl \
+        build-base \
+        linux-headers \
+        openssl-dev  # <-- ESTE ES EL PAQUETE FALTANTE
+        
+RUN pip install language_tool_python
+
+RUN pip install pandas
+
+
+RUN  apk update \
+  && apk upgrade \
+  && apk add ca-certificates \
+  && update-ca-certificates \
+  && apk add --update coreutils && rm -rf /var/cache/apk/*   \ 
+  && apk add --update openjdk11 tzdata curl unzip bash \
+  && apk add --no-cache nss \
+  && rm -rf /var/cache/apk/*
+  
+COPY ./main.sh /usr/bin/
+
