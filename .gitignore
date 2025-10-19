@@ -1,4 +1,4 @@
-*.csv
+incidencias_consolidadas.csv
 /cluster/*.csv
 /lemma/*.csv
 /themes/*.csv
