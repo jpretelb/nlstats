@@ -13,6 +13,9 @@ from knowledge_base import generar_kb
 
 from lemma import lemmatizar_modulo
 
+from consolidar import procesar_incidencias_a_csv
+
+
 ARCHIVO_LEMATIZADO = 'incidencias_con_lemas.csv'
 ARCHIVO_CONSOLIDADO = 'incidencias_consolidadas.csv'
 ARCHIVO_SALIDA_CLUSTERS = 'incidencias_con_clusters_por_modulo.csv'
@@ -95,6 +98,7 @@ def main():
     # Subcomando 3: 'analyze' (Análisis de frecuencias)
     # ----------------------------------------------------
     parser_analyze = subparsers.add_parser('analyze', help='Análisis de frecuencias (trabaja con archivos JSON).')
+    
     parser_analyze.add_argument(
         '--consolidate',
         action='store_true',
@@ -230,6 +234,9 @@ def analyze_data(args):
         try:
             
             print(f"Consolidado")
+
+            procesar_incidencias_a_csv("./incidencias", ARCHIVO_CONSOLIDADO)
+
             if not only:
                 lemmatize = True
                 clustering = True
