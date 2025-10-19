@@ -13,9 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8000
 
-COPY server.py .
-COPY test.html .
-COPY index.html .
+COPY html/ .
 COPY ./knowledge_base_db ./knowledge_base_db
 
 ENV GEMINI_API_KEY=""
