@@ -283,9 +283,10 @@
         function handleModuleChange(moduleName) {
             if (!moduleName) return;
             clearStatus();
-            const clusterUrl = `${API_BASE_URL}/img-cluster/${encodeURIComponent(moduleName)}`;
+            const timestamp = new Date().getTime();
+            const clusterUrl = `${API_BASE_URL}/img-cluster/${encodeURIComponent(moduleName)}?_=${timestamp}`;
             displayImage(clusterWrapper, clusterUrl, moduleName);
-            const codoUrl = `${API_BASE_URL}/img-codo/${encodeURIComponent(moduleName)}`;
+            const codoUrl = `${API_BASE_URL}/img-codo/${encodeURIComponent(moduleName)}?_=${timestamp}`;
             displayImage(codoWrapper, codoUrl, moduleName);
             fetchParetoData(moduleName);
         }
