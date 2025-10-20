@@ -3,52 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NLSTAS - Asistente de Incidencias con IA Generativa</title>
-    
+    <title>Test - NLP</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
     <style>
-        /* (El CSS no necesita cambios, se mantiene igual) */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
+        html, body {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+            align-items: center;
+            padding: 20px 0 0 0;
+        }
+        .main-content {
+            flex: 1;
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
         }
-        .container {
-            background-color: #ffffff;
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        .nav-container {
             width: 100%;
             max-width: 800px;
             margin-bottom: 20px;
+            padding: 15px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            box-sizing: border-box;
         }
-        h1 {
+        nav a {
+            text-decoration: none;
             color: #007bff;
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 2.5em;
-            font-weight: 600;
+            font-size: 1.2rem;
+            margin: 0 15px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
         }
-        .header-subtitle {
-            text-align: center;
-            color: #555;
-            margin-bottom: 30px;
-            font-style: italic;
+        nav a:hover, nav a.active {
+            background-color: #e7f3ff;
+            color: #0056b3;
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #444;
+        .content-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
         }
-        input[type="text"], textarea {
-            width: calc(100% - 20px);
+        h1 { color: #333; text-align: center; margin-bottom: 1rem; font-size: 2rem; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
+        textarea {
+            width: 100%;
             padding: 12px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
@@ -56,8 +73,6 @@
             font-size: 1em;
             box-sizing: border-box;
             resize: vertical;
-        }
-        textarea {
             min-height: 120px;
         }
         button {
@@ -71,11 +86,8 @@
             font-weight: 600;
             transition: background-color 0.3s ease;
             width: 100%;
-            box-sizing: border-box;
         }
-        button:hover {
-            background-color: #218838;
-        }
+        button:hover { background-color: #218838; }
         .response-box {
             background-color: #e9ecef;
             padding: 20px;
@@ -86,18 +98,8 @@
             margin-top: 25px;
             font-size: 0.95em;
             line-height: 1.6;
-            color: #333;
         }
-        .response-box h2, .response-box h3 {
-             margin-top: 1em;
-             margin-bottom: 0.5em;
-             color: #0056b3;
-        }
-        .error-message {
-            color: #dc3545;
-            font-weight: bold;
-            margin-top: 10px;
-        }
+        .error-message { color: #dc3545; font-weight: bold; margin-top: 10px; }
         .loading-spinner {
             border: 4px solid rgba(0, 0, 0, .1);
             border-left-color: #28a745;
@@ -108,28 +110,47 @@
             display: none;
             margin: 15px auto;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>NLSTAS -  Natura Language Stats</h1>
-        <p class="header-subtitle">Asistente Inteligente de Incidencias ERP con IA Generativa</p>
+    <div class="main-content">
+        <div class="nav-container">
+            <nav>
+                <a href="/">Inicio</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/test" class="active">Test</a>
+            </nav>
+        </div>
 
+        <div class="content-container">
+            <h1>Asistente de Incidencias</h1>
+            <p style="text-align: center; color: #606770; margin-bottom: 2rem;">Describe tu incidencia para obtener una solución basada en la base de conocimiento.</p>
 
-        <label for="question">Describe tu Incidencia:</label>
-        <textarea id="question" placeholder="Escribe aquí el problema..."></textarea>
+            <label for="question">Describe tu Incidencia:</label>
+            <textarea id="question" placeholder="Escribe aquí el problema..."></textarea>
 
-        <button onclick="sendQuery()">Consultar Solución</button>
-        <div class="loading-spinner" id="loadingSpinner"></div>
-        <p class="error-message" id="errorMessage"></p>
+            <button onclick="sendQuery()">Consultar Solución</button>
+            <div class="loading-spinner" id="loadingSpinner"></div>
+            <p class="error-message" id="errorMessage"></p>
 
-        <div id="responseContainer" class="response-box">
-             Esperando tu consulta...
+            <div id="responseContainer" class="response-box">
+                 Esperando tu consulta...
+            </div>
         </div>
     </div>
+
+    <footer>
+        Powered by NLStats
+    </footer>
 
     <script>
         async function sendQuery() {
@@ -138,7 +159,7 @@
             const errorMessage = document.getElementById('errorMessage');
             const loadingSpinner = document.getElementById('loadingSpinner');
             
-            responseContainer.innerHTML = 'Esperando tu consulta...'; // Limpiar la respuesta anterior
+            responseContainer.innerHTML = 'Esperando tu consulta...';
             errorMessage.textContent = '';
             loadingSpinner.style.display = 'block';
 
@@ -164,28 +185,19 @@
 
                 const data = await response.json();
 
-                // --- INICIO DE LA MODIFICACIÓN ---
-
-                // 2. Usar la nueva clave "respuesta_markdown" que contiene el texto formateado
                 if (data.respuesta_markdown) {
-                    // 3. Convertir la cadena de Markdown a HTML usando la librería marked.js
                     const htmlResponse = marked.parse(data.respuesta_markdown);
-                    
-                    // 4. Usar .innerHTML para que el navegador renderice las etiquetas HTML
                     responseContainer.innerHTML = htmlResponse;
                 } else {
-                    // Fallback si la respuesta no tiene el formato esperado
                     responseContainer.textContent = JSON.stringify(data, null, 2);
                 }
-
-                // --- FIN DE LA MODIFICACIÓN ---
 
             } catch (error) {
                 console.error('Error al consultar la API:', error);
                 errorMessage.textContent = `Error al consultar: ${error.message}. Asegúrate de que la API esté corriendo.`;
                 responseContainer.textContent = 'No se pudo obtener una respuesta.';
             } finally {
-                loadingSpinner.style.display = 'none'; // Ocultar spinner
+                loadingSpinner.style.display = 'none';
             }
         }
     </script>

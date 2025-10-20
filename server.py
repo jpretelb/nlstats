@@ -93,7 +93,7 @@ def get_status():
     """
     return {"status": "OK"}
 
-@app.get("/test.html", response_class=HTMLResponse, tags=["Test"])
+@app.get("/test", response_class=HTMLResponse, tags=["Test"])
 def servir_test_html(username: str = Depends(verificar_credenciales)):
     """
     Sirve el archivo test.html. Requiere Basic Auth.
@@ -127,6 +127,22 @@ def servir_test_html(username: str = Depends(verificar_credenciales)):
         raise HTTPException(status_code=500, detail=f"Error al leer el archivo: {e}")
 # -----------------------------------------------------------------------
 
+
+@app.get("/dashboard", response_class=HTMLResponse, tags=["index"])
+def servir_test_html(username: str = Depends(verificar_credenciales)):
+    
+    try:
+        # Asume que test.html está en la misma carpeta
+        with open("./html/dashboard.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return html_content
+    except FileNotFoundError:
+        # Si el archivo no existe
+        raise HTTPException(status_code=404, detail="El archivo test.html no fue encontrado.")
+    except Exception as e:
+        # Otros errores de lectura
+        raise HTTPException(status_code=500, detail=f"Error al leer el archivo: {e}")
+    
 @app.post("/consultar-kb")
 async def consultar_base_conocimiento(request: QueryRequest):
     """

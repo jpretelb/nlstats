@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - NLP</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+            align-items: center;
+            padding: 20px 0 0 0;
+        }
+        .main-content {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        .nav-container {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            box-sizing: border-box;
+        }
+        nav a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 1.2rem;
+            margin: 0 15px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        nav a:hover, nav a.active {
+            background-color: #e7f3ff;
+            color: #0056b3;
+        }
+        .content-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        h1, h2 { color: #333; }
+        h1 { font-size: 2rem; text-align: center; margin-bottom: 1rem; }
+        h2 { font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;}
+        p { color: #606770; text-align: center; margin-bottom: 2rem; }
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        .image-container {
+            width: 100%;
+            min-height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+            background-color: #fafafa;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .placeholder { color: #999; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th { background-color: #f7f7f7; }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        @media (min-width: 768px) {
+            .grid-cols-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="nav-container">
+            <nav>
+                <a href="/">Inicio</a>
+                <a href="dashboard" class="active">Dashboard</a>
+                <a href="test">Test</a>
+            </nav>
+        </div>
+
+        <div class="content-container">
+            <header>
+                <h1>Análisis de clasificación por Módulo</h1>
+                <p>Selecciona un módulo para visualizar sus gráficos de Clúster y Codo.</p>
+            </header>
+
+            <div>
+                <label for="module-select">Seleccionar Módulo:</label>
+                <select id="module-select" onchange="handleModuleChange(this.value)" disabled>
+                    <option value="" disabled selected>Cargando módulos...</option>
+                </select>
+            </div>
+
+            <div id="status-message" style="display:none; padding: 10px; border-radius: 8px; margin-bottom: 1rem;"></div>
+
+            <div class="grid">
+                <div>
+                    <h2>Datos del Análisis de Pareto</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tema</th>
+                                    <th>Cantidad</th>
+                                    <th>Porcentaje (%)</th>
+                                    <th>Acumulado (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pareto-table-body">
+                                <tr><td colspan="4" class="placeholder">Selecciona un módulo para ver los datos.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2">
+                    <div>
+                        <h2>Gráfico de Clúster</h2>
+                        <div id="cluster-img-wrapper" class="image-container">
+                            <span class="placeholder">Selecciona un módulo para empezar</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h2>Gráfico de Codo (Elbow)</h2>
+                        <div id="codo-img-wrapper" class="image-container">
+                            <span class="placeholder">Selecciona un módulo para empezar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Powered by NLStats
+    </footer>
+
+    <script>
+        const API_BASE_URL = '';
+        const moduleSelect = document.getElementById('module-select');
+        const clusterWrapper = document.getElementById('cluster-img-wrapper');
+        const codoWrapper = document.getElementById('codo-img-wrapper');
+        const paretoTableBody = document.getElementById('pareto-table-body');
+        const statusMessage = document.getElementById('status-message');
+
+        function showStatus(message, type = 'info') {
+            statusMessage.textContent = message;
+            statusMessage.style.display = 'block';
+            statusMessage.style.backgroundColor = type === 'error' ? '#ffdddd' : '#e7f3ff';
+            statusMessage.style.color = type === 'error' ? '#d8000c' : '#0056b3';
+        }
+
+        function clearStatus() {
+            statusMessage.style.display = 'none';
+        }
+
+        function showLoading(wrapper, text = "Cargando...") {
+            wrapper.innerHTML = `<span class="placeholder">${text}</span>`;
+        }
+
+        function displayImage(wrapper, url, moduleName) {
+            showLoading(wrapper, 'Cargando imagen...');
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = `Gráfico para ${moduleName}`;
+            img.onload = () => {
+                wrapper.innerHTML = '';
+                wrapper.appendChild(img);
+            };
+            img.onerror = () => {
+                wrapper.innerHTML = `<span class="placeholder" style="color: #d8000c;">Error al cargar la imagen para '${moduleName}'.</span>`;
+                showStatus(`No se pudo cargar la imagen desde ${url}.`, 'error');
+            };
+        }
+
+        async function fetchGroups() {
+            showStatus("Cargando lista de módulos...", 'info');
+            try {
+                const response = await fetch(`${API_BASE_URL}/get-grupos`);
+                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+                const data = await response.json();
+                if (data.grupos && Array.isArray(data.grupos)) {
+                    moduleSelect.innerHTML = '<option value="" disabled selected>Seleccione un módulo</option>';
+                    data.grupos.forEach(grupo => {
+                        const option = document.createElement('option');
+                        option.value = grupo;
+                        option.textContent = grupo;
+                        moduleSelect.appendChild(option);
+                    });
+                    moduleSelect.disabled = false;
+                    clearStatus();
+                } else {
+                    throw new Error("La respuesta de la API no contiene una lista de grupos.");
+                }
+            } catch (error) {
+                showStatus(`Error al cargar módulos: ${error.message}`, 'error');
+                moduleSelect.disabled = true;
+            }
+        }
+
+        async function fetchParetoData(moduleName) {
+            paretoTableBody.innerHTML = `<tr><td colspan="4" class="placeholder">Cargando datos...</td></tr>`;
+            try {
+                const response = await fetch(`${API_BASE_URL}/data/${encodeURIComponent(moduleName)}/pareto`);
+                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+                const data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    paretoTableBody.innerHTML = '';
+                    data.forEach(row => {
+                        const tr = document.createElement('tr');
+                        if (row.porcentaje_acumulado <= 80.01) {
+                            tr.style.backgroundColor = "#e7f3ff";
+                        }
+                        tr.innerHTML = `
+                            <td>${row.tema}</td>
+                            <td>${row.cantidad}</td>
+                            <td>${parseFloat(row.porcentaje).toFixed(2)}</td>
+                            <td>${parseFloat(row.porcentaje_acumulado).toFixed(2)}</td>
+                        `;
+                        paretoTableBody.appendChild(tr);
+                    });
+                } else {
+                    paretoTableBody.innerHTML = `<tr><td colspan="4" class="placeholder">No se encontraron datos para este módulo.</td></tr>`;
+                }
+            } catch (error) {
+                paretoTableBody.innerHTML = `<tr><td colspan="4" class="placeholder" style="color: #d8000c;">Error al cargar datos: ${error.message}</td></tr>`;
+            }
+        }
+
+        function handleModuleChange(moduleName) {
+            if (!moduleName) return;
+            clearStatus();
+            const clusterUrl = `${API_BASE_URL}/img-cluster/${encodeURIComponent(moduleName)}`;
+            displayImage(clusterWrapper, clusterUrl, moduleName);
+            const codoUrl = `${API_BASE_URL}/img-codo/${encodeURIComponent(moduleName)}`;
+            displayImage(codoWrapper, codoUrl, moduleName);
+            fetchParetoData(moduleName);
+        }
+
+        window.onload = fetchGroups;
+    </script>
+</body>
+</html>

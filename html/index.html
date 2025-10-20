@@ -3,346 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor de Clústeres y Codo de Modulos</title>
-    <!-- Carga de Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>NLP Home</title>
     <style>
-        /* Configuración de fuente y estilos base */
-        :root {
-            --primary-color: #3b82f6; /* blue-500 */
+        html, body {
+            height: 100%;
+            margin: 0;
         }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-        }
-        .image-container {
-            min-height: 250px; /* Altura mínima para evitar CLS */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
             display: flex;
+            flex-direction: column;
             align-items: center;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
             justify-content: center;
-            background-color: #ffffff;
-            border: 1px solid #e5e7eb;
-            transition: all 0.3s ease;
-        }
-        .image-container img {
+            align-items: center;
             width: 100%;
-            height: auto;
-            max-height: 50vh;
-            object-fit: contain;
         }
-        .placeholder {
-            color: #9ca3af;
-            font-style: italic;
+        .container {
+            max-width: 600px;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        p {
+            font-size: 1.1rem;
+            color: #606770;
+            margin-bottom: 2rem;
+        }
+        nav a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 1.2rem;
+            margin: 0 15px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        nav a:hover, nav a.active {
+            background-color: #e7f3ff;
+            color: #0056b3;
+        }
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.9rem;
+            color: #888;
         }
     </style>
 </head>
-<body class="p-4 sm:p-8">
-
-    <div class="max-w-4xl mx-auto bg-white p-6 md:p-10 rounded-xl shadow-2xl">
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl font-extrabold text-gray-800 border-b-4 border-blue-500 pb-2 inline-block">
-                Análisis de clasificación por Módulo
-            </h1>
-            <p class="text-gray-500 mt-2">Selecciona un módulo para visualizar sus gráficos de Clúster y Codo.</p>
-        </header>
-        
-        
-
-        <!-- Selector de Módulos -->
-        <div class="mb-8">
-            <label for="module-select" class="block text-lg font-medium text-gray-700 mb-2">
-                Seleccionar Módulo:
-            </label>
-            <select id="module-select" 
-                    class="mt-1 block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-lg rounded-lg shadow-sm bg-gray-50"
-                    onchange="handleModuleChange(this.value)"
-                    disabled>
-                <option value="" disabled selected>Cargando módulos...</option>
-            </select>
+<body>
+    <div class="main-content">
+        <div class="container">
+            <header>
+                <h1>Procesamiento de Lenguaje Natural</h1>
+                <p>Una colección de herramientas y visualizaciones para el análisis de texto.</p>
+            </header>
+            <nav>
+                <a href="/" class="active">Inicio</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/test">Test</a>
+            </nav>
         </div>
-
-
-
-        <!-- Contenedor de Alerta y Estado -->
-        <div id="status-message" class="hidden p-3 mb-6 text-sm rounded-lg bg-red-100 text-red-700" role="alert">
-            <!-- Mensajes de error o carga se insertarán aquí -->
-        </div>
-
-        <!-- Tabla de Datos de Pareto -->
-        
-
-        <!-- Visualización de Imágenes (Diseño Responsive) -->
-         <!-- Imagen de Codo (Elbow) 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
-            <div>
-                <h2 class="text-xl font-semibold text-gray-800 mb-3">Gráfico de Pareto por Tema</h2>
-                <div id="pareto-img-wrapper" class="image-container rounded-lg shadow-md">
-                    <span class="placeholder">Selecciona un módulo para empezar</span>
-                </div>
-            </div>
-        -->
-        <div class="grid grid-cols-1 md:grid-cols-1 gap-8">
-            <div class="mt-12">
-                <h2 class="text-xl font-semibold text-gray-800 mb-3">Datos del Análisis de Pareto</h2>
-                <div class="overflow-x-auto bg-white rounded-lg shadow">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tema</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Porcentaje (%)</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acumulado (%)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pareto-table-body" class="bg-white divide-y divide-gray-200">
-                            <!-- Las filas de datos se insertarán aquí dinámicamente -->
-                            <tr>
-                                <td colspan="4" class="px-6 py-4 text-center text-gray-500">Selecciona un módulo para ver los datos.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            
-            
-            <!-- Imagen de Clúster -->
-            <div>
-                <h2 class="text-xl font-semibold text-gray-800 mb-3">Gráfico de Clúster</h2>
-                <div id="cluster-img-wrapper" class="image-container rounded-lg shadow-md">
-                    <span class="placeholder">Selecciona un módulo para empezar</span>
-                </div>
-            </div>
-
-            <!-- Imagen de Codo (Elbow) -->
-            <div>
-                <h2 class="text-xl font-semibold text-gray-800 mb-3">Gráfico de Codo (Elbow)</h2>
-                <div id="codo-img-wrapper" class="image-container rounded-lg shadow-md">
-                    <span class="placeholder">Selecciona un módulo para empezar</span>
-                </div>
-            </div>
-
-            
-
-        </div>
-        </div>
-
-        
-
-        <!-- Pie de página informativo 
-        <footer class="mt-10 pt-4 border-t text-center text-gray-400 text-xs">
-            Desarrollado con FastAPI y JavaScript. API Base: http://127.0.0.1:8000
-        </footer>
-        -->
-
     </div>
-
-    <script>
-        // Configuración de la API
-        const API_BASE_URL = ''
-        //'http://127.0.0.1:8000'; 
-        
-        // Elementos del DOM
-        const moduleSelect = document.getElementById('module-select');
-        const clusterWrapper = document.getElementById('cluster-img-wrapper');
-        const codoWrapper = document.getElementById('codo-img-wrapper');
-        //const paretoWrapper = document.getElementById('pareto-img-wrapper');
-        const paretoTableBody = document.getElementById('pareto-table-body');
-        const statusMessage = document.getElementById('status-message');
-
-        
-
-
-        /**
-         * Muestra un mensaje de estado (éxito, error, etc.) en la interfaz.
-         * @param {string} message Mensaje a mostrar.
-         * @param {string} type 'error' o 'info'.
-         */
-        function showStatus(message, type = 'info') {
-            statusMessage.textContent = message;
-            statusMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-blue-100', 'text-blue-700');
-            
-            if (type === 'error') {
-                statusMessage.classList.add('bg-red-100', 'text-red-700');
-            } else {
-                statusMessage.classList.add('bg-blue-100', 'text-blue-700');
-            }
-        }
-
-        /**
-         * Limpia y oculta el mensaje de estado.
-         */
-        function clearStatus() {
-            statusMessage.classList.add('hidden');
-            statusMessage.textContent = '';
-        }
-
-        /**
-         * Muestra un placeholder de carga en el contenedor de imágenes.
-         * @param {HTMLElement} wrapper El contenedor (clusterWrapper o codoWrapper).
-         * @param {string} text Texto del indicador.
-         */
-        function showLoading(wrapper, text = "Cargando imagen...") {
-            wrapper.innerHTML = `<svg class="animate-spin h-5 w-5 text-blue-500 mr-3" viewBox="0 0 24 24">...</svg>
-                                 <span class="text-blue-500">${text}</span>`;
-            wrapper.classList.add('flex-row');
-        }
-
-        /**
-         * Muestra una imagen o un mensaje de error dentro de un contenedor.
-         * @param {HTMLElement} wrapper El contenedor (clusterWrapper o codoWrapper).
-         * @param {string} url La URL de la imagen.
-         */
-        function displayImage(wrapper, url, moduleName) {
-            wrapper.classList.remove('flex-row');
-            
-            const img = document.createElement('img');
-            img.src = url;
-            img.alt = `Gráfico para el módulo: ${moduleName}`;
-            
-            img.onload = () => {
-                wrapper.innerHTML = ''; // Limpia el loading
-                wrapper.appendChild(img);
-                clearStatus();
-            };
-
-            img.onerror = () => {
-                wrapper.innerHTML = `<span class="placeholder text-red-500">Error: Imagen no encontrada para '${moduleName}'</span>`;
-                showStatus(`Advertencia: No se pudo cargar la imagen desde ${url}. El archivo no existe o hay un error en el servidor.`, 'error');
-            };
-
-            // Mostrar el loading mientras se carga
-            wrapper.innerHTML = '';
-            showLoading(wrapper);
-        }
-
-        /**
-         * 1. Consulta la API para obtener la lista de módulos y llena el combobox.
-         */
-        async function fetchGroups() {
-            showStatus("Obteniendo la lista de módulos...", 'info');
-            try {
-                const response = await fetch(`${API_BASE_URL}/get-grupos`);
-                
-                if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.grupos && Array.isArray(data.grupos)) {
-                    // Limpia las opciones por defecto
-                    moduleSelect.innerHTML = '<option value="" disabled selected>Seleccione un módulo</option>'; 
-                    
-                    // Llena el select con los módulos
-                    data.grupos.forEach(grupo => {
-                        const option = document.createElement('option');
-                        option.value = grupo;
-                        option.textContent = grupo;
-                        moduleSelect.appendChild(option);
-                    });
-
-                    moduleSelect.disabled = false; // Habilita el combobox
-                    clearStatus(); // Limpia el mensaje de carga
-                } else {
-                    throw new Error("Respuesta de API inesperada: no se encontró la lista 'grupos'.");
-                }
-            } catch (error) {
-                console.error("Error al cargar grupos:", error);
-                moduleSelect.innerHTML = '<option value="" disabled>Error al cargar módulos</option>';
-                moduleSelect.disabled = true;
-                showStatus(`Error crítico al cargar módulos: ${error.message}. Verifique que el servicio FastAPI esté activo.`, 'error');
-            }
-        }
-
-        /**
-         * 3. Consulta la API para obtener los datos de Pareto y llena la tabla.
-         * @param {string} moduleName El nombre del módulo seleccionado.
-         */
-        async function fetchParetoData(moduleName) {
-            paretoTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Cargando datos...</td></tr>`;
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/data/${encodeURIComponent(moduleName)}/pareto`);
-                if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                if (Array.isArray(data) && data.length > 0) {
-                    paretoTableBody.innerHTML = ''; // Limpiar la tabla
-                    data.forEach(row => {
-                        const tr = document.createElement('tr');
-
-                        // Si el porcentaje acumulado es <= 80, resalta la fila.
-                        // Se usa 80.01 para incluir de forma segura los valores que son exactamente 80.
-                        if (row.porcentaje_acumulado <= 80.01) {
-                            tr.classList.add('bg-blue-50', 'font-semibold');
-                        }
-
-                        // Formatear números a 2 decimales para una visualización consistente.
-                        const porcentajeFmt = parseFloat(row.porcentaje).toFixed(2);
-                        const acumuladoFmt = parseFloat(row.porcentaje_acumulado).toFixed(2);
-
-                        tr.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${row.tema}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">${row.cantidad}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">${porcentajeFmt}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">${acumuladoFmt}</td>
-                        `;
-                        paretoTableBody.appendChild(tr);
-                    });
-                } else {
-                    paretoTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No se encontraron datos para este módulo.</td></tr>`;
-                }
-
-            } catch (error) {
-                console.error("Error al cargar datos de Pareto:", error);
-                paretoTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-red-500">Error al cargar los datos: ${error.message}</td></tr>`;
-                showStatus(`No se pudieron cargar los datos de la tabla de Pareto para '${moduleName}'.`, 'error');
-            }
-        }
-
-
-
-
-
-
-        /**
-         * 2. Maneja el cambio en el combobox y dispara la carga de imágenes.
-         * @param {string} moduleName El nombre del módulo seleccionado.
-         */
-        function handleModuleChange(moduleName) {
-            if (!moduleName) return;
-
-            // Limpia cualquier mensaje de error previo
-            clearStatus(); 
-
-            // Carga asíncrona de ambas imágenes
-            
-            // Cargar imagen de CLUSTER
-            const clusterUrl = `${API_BASE_URL}/img-cluster/${encodeURIComponent(moduleName)}`;
-            displayImage(clusterWrapper, clusterUrl, moduleName);
-
-            // Cargar imagen de CODO
-            const codoUrl = `${API_BASE_URL}/img-codo/${encodeURIComponent(moduleName)}`;
-            displayImage(codoWrapper, codoUrl, moduleName);
-
-            //const paretoUrl = `${API_BASE_URL}/reporte/${encodeURIComponent(moduleName)}/pareto`;
-            //displayImage(paretoWrapper, paretoUrl, moduleName);
-
-            // Cargar datos de la tabla de Pareto
-            fetchParetoData(moduleName);
-            
-        }
-
-
-        // Inicialización: Cargar los grupos al iniciar la página
-        window.onload = fetchGroups;
-
-    </script>
+    <footer>
+        Powered by NLStats
+    </footer>
 </body>
 </html>
