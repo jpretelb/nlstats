@@ -2,10 +2,17 @@ import spacy
 import re
 import time
 import pandas as pd
+import os
+
 from tqdm import tqdm
 
-def lemmatizar_modulo(csv_input, modulo, idincidencia=None):
-    csv_name = "./lemma/" + modulo.replace(' ', '_').replace('-', '_') + ".csv"
+from constants import CSV_CONSOLIDATE, PATH_BLACK_LIST, PATH_WHITE_LIST, PATH_LEMMA, clean_name
+
+
+COLUMNA_DATA = "data"
+
+def lemmatizar_modulo(modulo, idincidencia=None):
+    csv_name = PATH_LEMMA + "/" + clean_name(modulo) + ".csv"
 
     tqdm.pandas()
     start_time = time.time()
@@ -14,19 +21,40 @@ def lemmatizar_modulo(csv_input, modulo, idincidencia=None):
     nlp = spacy.load("es_core_news_lg")
     print("Modelo cargado.")
 
-    print("--- Cargando listas de palabras ---")
     BLACKLIST_LEMAS = set()
-    BLACKLIST_LEMAS = cargar_lista_desde_csv('./datasets/blacklist.csv', 'lema_a_ignorar', BLACKLIST_LEMAS)
-    BLACKLIST_LEMAS = cargar_lista_desde_csv('./datasets/apellidos.csv', 'apellido', BLACKLIST_LEMAS)
-    BLACKLIST_LEMAS = cargar_lista_desde_csv('./datasets/hombres.csv', 'nombre', BLACKLIST_LEMAS)
-    BLACKLIST_LEMAS = cargar_lista_desde_csv('./datasets/mujeres.csv', 'nombre', BLACKLIST_LEMAS)
-    print(f"Total de términos en la blacklist final: {len(BLACKLIST_LEMAS)}")
-
     PROTECTED_WORDS = set()
-    PROTECTED_WORDS = cargar_lista_desde_csv('./datasets/protected_words.csv', 'palabra_protegida', PROTECTED_WORDS)
 
-    print(f"Cargando incidencias desde '{csv_input}'...")
-    df_incidencias = pd.read_csv(csv_input)
+    try:
+        print(f"Listando archivos en la carpeta '{PATH_BLACK_LIST}'.")
+        archivos_black_list = os.listdir(PATH_BLACK_LIST)
+    except FileNotFoundError:
+        print(f"Error: La carpeta '{PATH_BLACK_LIST}' no se encontró.")
+        archivos_black_list = []
+
+    try:
+        print(f"Listando archivos en la carpeta '{PATH_WHITE_LIST}'.")
+        archivos_white_list = os.listdir(PATH_WHITE_LIST)
+    except FileNotFoundError:
+        print(f"Error: La carpeta '{PATH_WHITE_LIST}' no se encontró.")
+        archivos_white_list = []
+
+    print("Cargando archivos de black_lists...")
+    print(archivos_black_list)
+    for nombre_archivo in archivos_black_list:
+        ruta_completa_archivo = os.path.join(PATH_BLACK_LIST, nombre_archivo)
+        if os.path.isfile(ruta_completa_archivo) and nombre_archivo.endswith('.csv'):
+            print(f"Cargando archivo: {nombre_archivo}...")
+            BLACKLIST_LEMAS = cargar_lista_desde_csv(ruta_completa_archivo, COLUMNA_DATA, BLACKLIST_LEMAS)
+
+    print("Cargando archivos de white_lists...")
+    for nombre_archivo in archivos_white_list:
+        ruta_completa_archivo = os.path.join(PATH_WHITE_LIST, nombre_archivo)
+        if os.path.isfile(ruta_completa_archivo) and nombre_archivo.endswith('.csv'):
+            print(f"Cargando archivo: {nombre_archivo}...")
+            PROTECTED_WORDS = cargar_lista_desde_csv(ruta_completa_archivo, COLUMNA_DATA, PROTECTED_WORDS)
+    
+    print(f"Cargando incidencias desde '{CSV_CONSOLIDATE}'...")
+    df_incidencias = pd.read_csv(CSV_CONSOLIDATE)
 
     df_modulo = df_incidencias[df_incidencias['modulo'] == modulo].copy()
 
@@ -45,7 +73,7 @@ def lemmatizar_modulo(csv_input, modulo, idincidencia=None):
         lambda texto: lematizar_y_limpiar(texto, nlp, BLACKLIST_LEMAS, PROTECTED_WORDS)
     )
 
-
+    print(f"Creando archivo CSV {csv_name}")
     df_modulo.to_csv(csv_name, index=False, encoding='utf-8-sig')
 
 

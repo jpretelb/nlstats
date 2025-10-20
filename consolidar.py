@@ -4,7 +4,10 @@ import pandas as pd
 #import spacy
 #from tqdm import tqdm
 
-def procesar_incidencias_a_csv(carpeta_json, archivo_salida_csv):
+from constants import PATH_INCIDENCIAS, CSV_CONSOLIDATE
+
+
+def procesar_incidencias_a_csv():
     #tqdm.pandas()
 
     """
@@ -13,11 +16,11 @@ def procesar_incidencias_a_csv(carpeta_json, archivo_salida_csv):
     """
     lista_de_incidencias = []
     
-    print(f"Buscando archivos JSON en la carpeta: '{carpeta_json}'...")
+    print(f"Buscando archivos JSON en la carpeta: '{PATH_INCIDENCIAS}'...")
 
-    for nombre_archivo in os.listdir(carpeta_json):
+    for nombre_archivo in os.listdir(PATH_INCIDENCIAS):
         if nombre_archivo.endswith('.json'):
-            ruta_completa = os.path.join(carpeta_json, nombre_archivo)
+            ruta_completa = os.path.join(PATH_INCIDENCIAS, nombre_archivo)
             
             try:
                 with open(ruta_completa, 'r', encoding='utf-8') as f:
@@ -70,9 +73,9 @@ def procesar_incidencias_a_csv(carpeta_json, archivo_salida_csv):
     ]
     df = df[columnas_ordenadas]
 
-    df.to_csv(archivo_salida_csv, index=False, encoding='utf-8-sig')
+    df.to_csv(CSV_CONSOLIDATE, index=False, encoding='utf-8-sig')
     
     print("--------------------------------------------------")
     print(f"¡Proceso completado exitosamente!")
-    print(f"Se ha creado el archivo '{archivo_salida_csv}' con {len(df)} filas.")
+    print(f"Se ha creado el archivo '{CSV_CONSOLIDATE}' con {len(df)} filas.")
     print("--------------------------------------------------")

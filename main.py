@@ -1,3 +1,8 @@
+from constants import PATH_CLUSTER, PATH_LEMMA, PATH_INCIDENCIAS, PATH_IMGS_CODO, PATH_IMGS_CLUSTER
+from constants import PATH_DATASET, PATH_WHITE_LIST, PATH_BLACK_LIST, PATH_THEME, PATH_KB
+
+from constants import PATH_CHROMA_DB
+
 import argparse
 import sys
 import os # Para las variables de entorno
@@ -16,17 +21,15 @@ from lemma import lemmatizar_modulo
 from consolidar import procesar_incidencias_a_csv
 
 
-ARCHIVO_LEMATIZADO = 'incidencias_con_lemas.csv'
-ARCHIVO_CONSOLIDADO = 'incidencias_consolidadas.csv'
-ARCHIVO_SALIDA_CLUSTERS = 'incidencias_con_clusters_por_modulo.csv'
-DIRECTORIO_SALIDA_MD = 'conocimiento_consolidado'
-
-ARCHIVO_SALIDA_THEMES  = 'cluster_themes.csv'
 
 
-DIRECTORIO_CONOCIMIENTO = 'conocimiento_consolidado'
-DIRECTORIO_CHROMA_DB = 'knowledge_base_db'
-NOMBRE_COLECCION = 'problems'
+#ARCHIVO_LEMATIZADO = 'incidencias_con_lemas.csv'
+#ARCHIVO_CONSOLIDADO = 'incidencias_consolidadas.csv'
+#ARCHIVO_SALIDA_CLUSTERS = 'incidencias_con_clusters_por_modulo.csv'
+#ARCHIVO_SALIDA_THEMES  = 'cluster_themes.csv'
+#DIRECTORIO_CONOCIMIENTO = 'conocimiento_consolidado'
+
+
 LOTE_EMBEDDING = 10 
 
 def main():
@@ -44,6 +47,21 @@ def main():
         description="NLStats: Herramienta de procesamiento de lenguaje natural.",
         formatter_class=argparse.RawTextHelpFormatter # Mantiene el formato en la ayuda
     )
+
+    os.makedirs(PATH_CLUSTER, exist_ok=True)
+    os.makedirs(PATH_LEMMA, exist_ok=True)
+    os.makedirs(PATH_INCIDENCIAS, exist_ok=True)
+    os.makedirs(PATH_IMGS_CODO, exist_ok=True)
+    os.makedirs(PATH_IMGS_CLUSTER, exist_ok=True)
+    os.makedirs(PATH_DATASET, exist_ok=True)
+    os.makedirs(PATH_WHITE_LIST, exist_ok=True)
+    os.makedirs(PATH_BLACK_LIST, exist_ok=True)
+    os.makedirs(PATH_THEME, exist_ok=True)
+    os.makedirs(PATH_KB, exist_ok=True)
+    os.makedirs(PATH_CHROMA_DB, exist_ok=True)
+
+    
+
 
     # Configuración de Subcomandos
     subparsers = parser.add_subparsers(
@@ -94,16 +112,15 @@ def main():
     )
     parser_normalize.set_defaults(func=normalize_data)
 
+
+    parser_consolidate = subparsers.add_parser('consolidate', help='Consolidar la información de las incidencias.')
+    parser_consolidate.set_defaults(func=consolidate_data)
+
+
     # ----------------------------------------------------
     # Subcomando 3: 'analyze' (Análisis de frecuencias)
     # ----------------------------------------------------
-    parser_analyze = subparsers.add_parser('analyze', help='Análisis de frecuencias (trabaja con archivos JSON).')
-    
-    parser_analyze.add_argument(
-        '--consolidate',
-        action='store_true',
-        help='Paso 1: Consolida archivos JSON en un único CSV.'
-    )
+    parser_analyze = subparsers.add_parser('proc', help='Análisis de frecuencias (trabaja con archivos JSON).')
 
     parser_analyze.add_argument(
         '--lemma',
@@ -129,11 +146,6 @@ def main():
         help='Paso 5: Creación de Retrieval-Augmented Generation..'
     )
 
-    parser_analyze.add_argument(
-        '--only',
-        action='store_true',
-        help='Unicamente ejecutar el paso solicitado'
-    )
     parser_analyze.add_argument(
         '-m', '--module',
         required=True,
@@ -216,6 +228,9 @@ def normalize_data(args):
         print(f"\nError fatal durante la normalización: {e}")
         print(e)
 
+def consolidate_data(args):
+    print(f"Consolidating data....")
+    procesar_incidencias_a_csv()
 
 def analyze_data(args):
     """Lógica para el comando 'analyze'."""
@@ -227,79 +242,42 @@ def analyze_data(args):
     kb = False
     israg = False
 
-    only = args.only
-
-    if args.consolidate:
-        print("\n[Paso 1/3] Consolidando incidencias")
+    if args.lemma:
+        print("\nLematizando incidencias")
         try:
-            
-            print(f"Consolidado")
-
-            procesar_incidencias_a_csv("./incidencias", ARCHIVO_CONSOLIDADO)
-
-            if not only:
-                lemmatize = True
-                clustering = True
-                kb = True
-        except Exception as e:
-            print(f"Error en el paso de consolidación: {e}")
-            sys.exit(1)
-    else:
-        print("[Paso 1/3] Consolidando incidencias. Se usará archivos existentes.")
-
-    if args.lemma or lemmatize:
-        print("\n[Paso 2/3] Lematizando incidencias")
-        try:
-            
-            print(f"Lematizando incidencias")
-
-            lemmatizar_modulo(csv_input=ARCHIVO_CONSOLIDADO, modulo=args.module)
-            if not only:
-                clustering = True
-                kb = True
+            lemmatizar_modulo(modulo=args.module)
         except Exception as e:
             print(f"Error en el paso de Lemmatizacion: {e}")
             sys.exit(1)
-    else:
-        print("[Paso 2/3] Lematizando incidencias. Se usará archivos existentes.")
 
-    if args.cluster or clustering:
-        print("\n[Paso 3/3] Clustering...")
+    if args.cluster:
+        print("\nClustering...")
         try:
-            
             clustering_module(args.module, float(args.maxdf), int(args.mindf))
-            if not only:
-                kb = True
+
         except Exception as e:
             print(f"Error Clustering: {e}")
             sys.exit(1)
-    else:
-        print("[Paso 2/3] Lematizando incidencias. Se usará archivos existentes.")
     
-    if args.kb or kb:
-        print("\n[Paso 4/4] KB...")
+    
+    if args.kb:
+        print("\nKB...")
         try:
-            
-            generar_kb(DIRECTORIO_SALIDA_MD, ARCHIVO_LEMATIZADO, ARCHIVO_SALIDA_CLUSTERS, 'lemas_problema')
+            generar_kb(args.module, 'lemas_problema')
         except Exception as e:
             print(f"Error Clustering: {e}")
             sys.exit(1)
-    else:
-        print("[Paso 4/4] KB incidencias. Se usará archivos existentes.")
 
 
     
-    if args.rag or israg:
-        print("\n[Paso 4/5] KB...")
+    if args.rag:
+        print("\nRAG...")
         try:
             
-            rag(DIRECTORIO_SALIDA_MD, DIRECTORIO_CHROMA_DB, 'lemas_problema')
+            rag(args.module)
         except Exception as e:
             print(f"Error Clustering: {e}")
             sys.exit(1)
-    else:
-        print("[Paso 4/5] KB incidencias. Se usará archivos existentes.")
-
 
     
 

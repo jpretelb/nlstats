@@ -5,13 +5,24 @@ import pandas as pd
 import math
 from sklearn.feature_extraction.text import CountVectorizer
 
+from constants import PATH_KB, clean_name, CSV_CONSOLIDATE, PATH_CLUSTER
 
 INCIDENCIAS_POR_ARCHIVO = 20
 TOP_N_LEMAS = 15
 
-def generar_kb(path, csv_consolidado, csv_clusters, lemma_column) :
+def generar_kb(module, lemma_column) :
+
+    clean_name_module = clean_name(module)
+    path = PATH_KB + "/" + clean_name_module
+    csv_clusters = PATH_CLUSTER + "/" + clean_name_module + ".csv"
+
+
+
+
     if os.path.exists(path):
         print(f"Limpiando el directorio de salida existente: '{path}'...")
+    else :
+        os.makedirs(path, exist_ok=True)
     try:
         shutil.rmtree(path)
     except OSError as e:
@@ -25,7 +36,7 @@ def generar_kb(path, csv_consolidado, csv_clusters, lemma_column) :
 
 
     try:
-        df_original = pd.read_csv(csv_consolidado)
+        df_original = pd.read_csv(CSV_CONSOLIDATE)
         df_clusters = pd.read_csv(csv_clusters)
         df = pd.merge(df_clusters, df_original[['idincidencia', 'problema', 'solucion']], on='idincidencia')
         print(f"{len(df)} registros cargados y fusionados.")

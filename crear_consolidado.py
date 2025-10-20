@@ -14,11 +14,7 @@ from sklearn.manifold import TSNE # Para reducción de dimensionalidad
 import numpy as np # Para manejo de arrays
 from tqdm import tqdm
 
-ARCHIVO_INCIDENCIAS = 'incidencias_consolidadas.csv'
-ARCHIVO_SALIDA_LEMAS = 'incidencias_con_lemas.csv'
-ARCHIVO_LEMATIZADO = 'incidencias_con_lemas.csv'
-
-def procesar_incidencias_a_csv(carpeta_json, archivo_salida_csv):
+def procesar_incidencias_a_csv():
     tqdm.pandas()
 
     """

@@ -12,9 +12,14 @@ import math
 
 from step0_migration import local_connection
 from bs4 import BeautifulSoup
-
+from constants import clean_name, PATH_KB
 
 import chromadb
+
+
+from constants import PATH_CHROMA_DB, COLLECTION_NAME_PROBLEM
+
+
 LOTE_EMBEDDING = 10
 
 CARPETA_SALIDA = "incidencias"
@@ -183,7 +188,7 @@ def return_etiquetas_from_cluster(texto_completo):
         #json_text = response.text.strip()
         datos_limpios = json.loads(json_text)
         
-        print(datos_limpios)
+        
         return datos_limpios
         
     except Exception as e:
@@ -307,7 +312,93 @@ def run_normaliza_gemini(postgres_conf, postgres_pass, year_month):
 
 
 
-def rag(path, chroma_db_path, collection_name):
+
+def rag(module):
+
+    load_dotenv()
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("API Key de Gemini no encontrada. Revisa tu archivo .env.")
+
+
+    clean_name_module = clean_name(module)
+    path = PATH_KB + "/" + clean_name_module
+
+    archivos_md = [f for f in os.listdir(path) if f.endswith('.md')]
+    print(f"Cargando documentos desde '{path}'...")
+
+    documentos = []
+    metadatos = []
+    ids = []
+
+
+    for filename in tqdm(archivos_md, desc="Cargando archivos .md"):
+        filepath = os.path.join(path, filename)
+        with open(filepath, 'r', encoding='utf-8') as f:
+            documentos.append(f.read())
+            # Guardamos el nombre del cluster como metadato
+            metadatos.append({'grupo': clean_name_module, 'cluster_name': filename.replace('.md', '')})
+            ids.append(clean_name_module + "_" + filename)
+    
+    if not documentos:
+        print("Error: No se encontraron documentos .md. Ejecuta el script de consolidación primero.")
+        exit()
+    
+    print(f"{len(documentos)} documentos cargados.")
+
+    print("Inicializando ChromaDB...")
+    client = chromadb.PersistentClient(path=PATH_CHROMA_DB)
+
+    embedding_function = chromadb.utils.embedding_functions.GoogleGenerativeAiEmbeddingFunction(api_key=api_key)
+
+    print(f"Creando o cargando la colección '{COLLECTION_NAME_PROBLEM}'...")
+    collection = client.get_or_create_collection(
+        name=COLLECTION_NAME_PROBLEM,
+        embedding_function=embedding_function
+    )
+
+    filtro = {"grupo": clean_name_module}
+
+    #registros_a_eliminar = collection.count(where=filtro)
+    #    
+    #print(f"**Se encontraron {registros_a_eliminar} registros para el módulo '{clean_name_module}'**.")
+    #
+    #if registros_a_eliminar > 0:#
+
+    #    print(f"\n**Limpiando documentos del módulo/cluster: '{clean_name_module}'**")
+    #    
+    #    collection.delete(#
+    #        where={"grupo": clean_name_module} 
+    #    )
+    #    print(f"Limpieza de '{clean_name_module}' completada.")
+
+    print(f"\n**Limpiando documentos del módulo/cluster: '{clean_name_module}'**")
+
+    collection.delete(
+        where={"grupo": clean_name_module} 
+    )
+
+    print(f"Limpieza de '{clean_name_module}' completada.")
+    
+    print("Añadiendo documentos a la colección (esto puede tardar)...")
+
+    num_lotes = math.ceil(len(documentos) / LOTE_EMBEDDING)
+
+    for i in tqdm(range(num_lotes), desc="Procesando y guardando embeddings"):
+        inicio = i * LOTE_EMBEDDING
+        fin = (i + 1) * LOTE_EMBEDDING
+        
+        lote_docs = documentos[inicio:fin]
+        lote_metadatos = metadatos[inicio:fin]
+        lote_ids = ids[inicio:fin]
+        
+        collection.add(
+            documents=lote_docs,
+            metadatas=lote_metadatos,
+            ids=lote_ids
+        )
+
+def rag_all(path, chroma_db_path, collection_name):
     load_dotenv()
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:

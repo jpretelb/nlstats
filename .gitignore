@@ -7,6 +7,7 @@ incidencias_consolidadas.csv
 /imgs/codo/*.png
 /incidencias/*
 /knowledge_base_db/*
+storage/
 __pycache__
 
 *.ini

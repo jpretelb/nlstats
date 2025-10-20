@@ -4,7 +4,6 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-
 COPY requirements_service.txt requirements.txt
 
 
@@ -14,14 +13,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8000
 
 COPY html ./html
-COPY imgs ./imgs
-COPY themes ./themes
-COPY lemma ./lemma
-COPY cluster ./cluster
+#COPY imgs ./imgs
+#COPY themes ./themes
+#COPY lemma ./lemma
+#COPY cluster ./cluster
 COPY server.py .
-COPY incidencias_consolidadas.csv .
-COPY ./knowledge_base_db ./knowledge_base_db
-COPY ./knowledge_base_db ./knowledge_base_db
+COPY constants.py .
+COPY prompts.py .
+#COPY ./knowledge_base_db ./knowledge_base_db
+#COPY ./knowledge_base_db ./knowledge_base_db
 
 ENV GEMINI_API_KEY=""
 
