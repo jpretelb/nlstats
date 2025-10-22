@@ -45,6 +45,7 @@ def procesar_incidencias_a_csv():
                     
                     fila = {
                         'idincidencia': data.get('idincidencia'),
+                        'respuesta_clara': data.get('respuesta_clara'),
                         'fechacreacion': data.get('fechacreacion'),
                         'empresa': data.get('empresa'),
                         'modulo': data.get('modulo'),
@@ -67,7 +68,7 @@ def procesar_incidencias_a_csv():
     df = pd.DataFrame(lista_de_incidencias)
     
     columnas_ordenadas = [
-        'idincidencia', 'fechacreacion', 'empresa', 'modulo', 'categoria', 
+        'idincidencia', 'respuesta_clara', 'fechacreacion', 'empresa', 'modulo', 'categoria', 
         'urgencia_estimada', 'problema', 'solucion', 'entidad_modulo', 
         'entidad_proceso', 'entidad_documento'
     ]

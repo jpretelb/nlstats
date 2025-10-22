@@ -5,7 +5,7 @@ from psycopg2 import Error
 import json
 from tqdm import tqdm
 
-def run_migration(mssql_conf, postgres_conf, mssql_pass, postgres_pass, start_date_str, end_date_str):
+def run_fetch(mssql_conf, postgres_conf, mssql_pass, postgres_pass, start_date_str, end_date_str):
     """
     Función que realiza la migración real.
     

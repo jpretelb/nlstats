@@ -8,12 +8,12 @@ import sys
 import os # Para las variables de entorno
 import pyfiglet
 from config_utils import load_db_config, load_gemini_token
-from step0_migration import run_migration
+from fetch_data import run_fetch
 from gemini import run_normaliza_gemini, rag
 
 from kmeans import clustering_module
 
-from crear_consolidado import procesar_incidencias_a_csv, iniciar
+#from crear_consolidado import procesar_incidencias_a_csv
 from knowledge_base import generar_kb
 
 from lemma import lemmatizar_modulo
@@ -207,7 +207,7 @@ def fetch_data(args):
     #gemini_token = load_gemini_token()
 
     try:
-        run_migration(mssql_conf, postgres_conf, mssql_pass, postgres_pass, start_date, end_date)
+        run_fetch(mssql_conf, postgres_conf, mssql_pass, postgres_pass, start_date, end_date)
         print("\nMigración completada exitosamente.")
     except Exception as e:
         print(f"\nError fatal durante la migración: {e}")
@@ -278,12 +278,6 @@ def analyze_data(args):
         except Exception as e:
             print(f"Error Clustering: {e}")
             sys.exit(1)
-
-    
-
-    #procesar_incidencias_a_csv("./incidencias", "incidencias_consolidadas.csv")
-    #iniciar()
-
     
 
     # Aquí iría la lógica real de análisis de frecuencias.
