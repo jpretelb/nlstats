@@ -53,7 +53,7 @@ def clustering_module(modulo, p_max_df, p_min_df):
     rango_k = list(range(2, max_k_para_modulo + 1))
     
     if len(df_modulo) < MIN_INCIDENCIAS_POR_MODULO:
-        print(f"⚠️  Se omitió el módulo por tener menos de {MIN_INCIDENCIAS_POR_MODULO} incidencias.")
+        print(f"Se omitió el módulo por tener menos de {MIN_INCIDENCIAS_POR_MODULO} incidencias.")
         return
     
     inertia = []
@@ -79,7 +79,6 @@ def clustering_module(modulo, p_max_df, p_min_df):
     plt.ylabel('Inercia (SSE)')
     plt.grid(True, linestyle='--', alpha=0.6)
     
-    # Opcional: Marcar el codo detectado por KneeLocator si ya lo has calculado
     kn = KneeLocator(rango_k, inertia, curve='convex', direction='decreasing')
     if kn.elbow:
         plt.axvline(kn.elbow, color='r', linestyle='--', label=f'Codo detectado: {kn.elbow}')
@@ -96,10 +95,6 @@ def clustering_module(modulo, p_max_df, p_min_df):
     """DIBUJAR CODO"""
 
     elbow_data[modulo] = {'k': rango_k, 'inertia': inertia}
-    #print("------------------------")
-    #print(kn)
-    #print(elbow_data
-    #kn = KneeLocator(rango_k, inertia, curve='convex', direction='decreasing')
     n_clusters_elegido = kn.elbow if kn.elbow else 3
     print(f"Número óptimo de clusters detectado (codo): {n_clusters_elegido}")
     
@@ -115,45 +110,23 @@ def clustering_module(modulo, p_max_df, p_min_df):
         mask = np.ones(n_clusters_elegido, dtype=bool)
         mask[i] = False
         
-        # a. Obtener los centroides de los 'otros' clusters
         other_centroids = centroids[mask, :]
         
-        # b. Calcular el peso promedio de cada término en los 'otros' clusters
-        # Promediamos a lo largo del eje 0 (los clusters)
         mean_other_weights = other_centroids.mean(axis=0)
         
-        # c. Calcular la diferencia: Peso_Cluster_i - Peso_Promedio_Otros
-        # Esto destaca los términos que son únicos para el cluster 'i'
         discriminative_weights[i] = centroids[i] - mean_other_weights
-
-    # 3. Ordenar los nuevos pesos para obtener los índices discriminatorios
-    # ArgSort ordena y [:, ::-1] invierte para obtener el orden descendente
     discriminative_order = discriminative_weights.argsort()[:, ::-1]
 
     terms = vectorizer.get_feature_names_out()
     for i in range(n_clusters_elegido):
-        # ¡USANDO LA NUEVA ORDENACIÓN DISCRIMINATORIA!
         top_terms = [terms[ind] for ind in discriminative_order[i, :25]]
         
-        #print(f"Cluster {i}: {', '.join(top_terms)}")
         cluster_themes.append({
             'modulo': modulo,
             'cluster': i,
             'top_terms': top_terms
         })
         
-
-    #print(f"--- Top 10 términos por Cluster para {modulo} ---")
-    #order_centroids = kmeans.cluster_centers_.argsort()[:, ::-1]
-    #terms = vectorizer.get_feature_names_out()
-    #for i in range(n_clusters_elegido):
-    #    top_terms = [terms[ind] for ind in order_centroids[i, :15]]
-    #    #print(f"Cluster {i}: {', '.join(top_terms)}")
-    #    cluster_themes.append({
-    #        'modulo': modulo,
-    #        'cluster': i,
-    #        'top_terms': top_terms
-    #    })
 
     print(f"Generando visualización de clusters para {modulo}...")
     try:
@@ -162,8 +135,6 @@ def clustering_module(modulo, p_max_df, p_min_df):
             print("Insuficientes datos o clusters para t-SNE. Saltando visualización.")
             all_clusters_dfs.append(df_modulo)
             return
-        # Limitamos el número de iteraciones y perplexity para dataset pequeños
-        # También random_state para reproducibilidad-
         tsne = TSNE(n_components=2, init='random', random_state=42, n_jobs=-1)
         
         X_reduced = tsne.fit_transform(X)
@@ -174,7 +145,6 @@ def clustering_module(modulo, p_max_df, p_min_df):
         colors = plt.cm.get_cmap('tab10', n_clusters_elegido) 
         
         for i in range(n_clusters_elegido):
-            # Seleccionar puntos que pertenecen a este cluster
             points = X_reduced[df_modulo['cluster_label'] == i]
             plt.scatter(points[:, 0], points[:, 1], 
                         s=50, # Tamaño de los puntos
@@ -189,7 +159,6 @@ def clustering_module(modulo, p_max_df, p_min_df):
         plt.grid(True, linestyle='--', alpha=0.6)
         plt.tight_layout()
         
-        # Guardar el gráfico
         nombre_archivo_grafico = PATH_IMGS_CLUSTER + "/" + img_name
         print(nombre_archivo_grafico)
         plt.savefig(nombre_archivo_grafico)
