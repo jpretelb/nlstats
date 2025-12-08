@@ -102,7 +102,6 @@ def run_normaliza_gemini(postgres_conf, postgres_pass, year_month):
             for incidencia_row in tqdm(incidencias_principales, desc="Procesando incidencias"):
                 idincidencia, titulo, contenido, empresa, fechacreacion, modulo = incidencia_row
                 
-                # --- NUEVO: Lógica de verificación ---
                 ruta_archivo_salida = os.path.join(CARPETA_SALIDA, f"{idincidencia}.json")
                 if os.path.exists(ruta_archivo_salida):
                     incidencias_saltadas += 1
@@ -135,13 +134,8 @@ def run_normaliza_gemini(postgres_conf, postgres_pass, year_month):
                         contents=prompt_final
                     )
 
-                    #print(response.text)
-                    #print("1")
                     json_text = response.text.strip().replace("```json", "").replace("```", "").strip()
-                    #print("2")
-                    #json_text = response.text.strip()
                     datos_limpios = json.loads(json_text)
-                    #print("3")
                     datos_limpios['idincidencia'] = idincidencia
                     datos_limpios['empresa'] = empresa
                     datos_limpios['modulo'] = modulo
@@ -149,7 +143,6 @@ def run_normaliza_gemini(postgres_conf, postgres_pass, year_month):
                     
                     #print("4")
 
-                    # --- NUEVO: Guardado individual ---
                     with open(ruta_archivo_salida, 'w', encoding='utf-8') as outfile:
                         json.dump(datos_limpios, outfile, ensure_ascii=False, indent=4)
 
@@ -162,12 +155,6 @@ def run_normaliza_gemini(postgres_conf, postgres_pass, year_month):
         return
     
     
-
-
-
-    
-
-    # --- 3. REPORTE FINAL ---
     print("\n--- REPORTE DEL PROCESO ---")
     total_procesadas = len(incidencias_principales) - incidencias_saltadas - len(ids_con_error)
     print(f"Incidencias procesadas en esta ejecución: {total_procesadas}")
